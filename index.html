@@ -305,7 +305,8 @@
 
             if (combinedCode === '1661') {
                 logEl.className = 'text-success';
-                logEl.innerHTML = '🚩 【大軍聽令：開戰！】<br>暗號正確！西元 1661 年，正是天佑我軍之時！';
+                // 💡 調整：文字僅留「暗號正確！」及以前文字
+                logEl.innerHTML = '🚩 【大軍聽令：開戰！】<br>暗號正確！';
             } else {
                 logEl.className = 'text-error';
                 logEl.innerHTML = '⚠️ 【軍情有誤．按兵不動】<br>暗號不符！海面風浪大作，恐是紅毛番的誘敵詭計。請重新嚴密審視哨塔火光次數！';
