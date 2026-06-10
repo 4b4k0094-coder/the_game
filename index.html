@@ -2,329 +2,184 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>裡應外合</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>跨平台實境解謎遊戲</title>
     <style>
-        /* 全局大明軍隊深夜海戰風格 */
-        body {
+        /* --- 基礎防呆與全螢幕設定 --- */
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #050811, #121620);
-            color: #f1f5f9;
-            font-family: "Noto Serif TC", "Noto Sans TC", "Microsoft JhengHei", serif;
+            user-select: none; /* 防止手機玩家長按文字跳出複製選單 */
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #ffffff;
+            overflow: hidden; /* 防止手機版網頁不正常滾動 */
+        }
+
+        /* --- 中央遊戲畫布外殼 --- */
+        .app-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- 通用的面板樣式（電腦版限制最大寬高，手機版全螢幕） --- */
+        .scene-panel {
+            width: 100%;
+            height: 100%;
+            max-width: 450px;  /* 限制最大寬度，讓電腦版看起來像手機 App */
+            max-height: 850px; /* 限制最大高度 */
+            background: #2c2c2c;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
+            justify-content: space-between;
+            padding: 24px;
+            transition: all 0.3s ease;
         }
 
-        .header-container {
-            text-align: center;
-            max-width: 750px;
-            padding: 20px;
-            z-index: 20;
+        /* --- 響應式調整：當螢幕夠寬（電腦/平板）時的優化 --- */
+        @media (min-width: 768px) {
+            .scene-panel {
+                border-radius: 16px;
+                height: 90%; /* 在電腦上不硬塞滿，留點邊框更好看 */
+                border: 2px solid #444;
+            }
         }
 
-        h1 {
-            color: #eab308; 
-            font-size: 2.3rem;
-            letter-spacing: 4px;
-            margin-bottom: 12px;
-            text-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
-        }
-
-        .story-text {
-            color: #cbd5e1;
-            font-size: 0.98rem;
-            line-height: 1.7;
-            background: rgba(20, 15, 10, 0.85);
-            padding: 18px 25px;
-            border-left: 4px solid #b91c1c; 
-            border-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        /* ⚔️ 遊戲觀測主舞台 ⚔️ */
-        .stage {
-            position: relative;
-            width: 850px;
-            height: 566px; 
-            background-image: url('底圖.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            border: 3px solid #451a03;
-            border-radius: 12px;
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.8), 0 12px 40px rgba(0,0,0,0.7);
-            overflow: hidden;
-            margin: 25px 0;
-        }
-
-        /* 圖層 1：草地環境 */
-        .grass-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('草地.png');
-            background-size: 100% 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* 圖層 2：夜幕籠罩 */
-        .night-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('夜幕（透明.png');
-            background-size: 100% 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* ⚓ 圖層 3：動態烽火燈塔 */
-        .tower {
-            position: absolute;
-            object-fit: cover;
-            object-position: top; 
-            display: block;
-        }
-
-        /* 精準控制位置與比例 */
-        #tower-0 {
-            /* 左側大藍窗燈塔 */
-            left: 80px;
-            bottom: 110px;
-            width: 155px;
-            height: 310px;
-            z-index: 3;
-        }
-        #tower-1 {
-            /* 中間中型背景燈塔 */
-            left: 275px;
-            bottom: 250px;
-            width: 95px;
-            height: 220px;
-            z-index: 3;
-        }
-        #tower-2 {
-            /* 右上極遠處小型燈塔 */
-            left: 530px;
-            bottom: 330px;
-            width: 65px;
-            height: 150px;
-            z-index: 3;
-        }
-        #tower-3 {
-            /* 右下角特大前景燈塔 */
-            left: 625px;
-            bottom: 20px; 
-            width: 240px;
-            height: 260px;
-            z-index: 3; 
-        }
-
-        /* 🧱 圖層 4：前景紅磚城牆 */
-        .wall-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('城牆.png');
-            background-size: 100% 100%;
-            pointer-events: none;
-            z-index: 4; 
-        }
-
-
-        /* 國姓爺中軍大帳操作終端 */
-        .terminal-box {
-            background: #1c130c; 
-            border: 2px solid #b91c1c;
-            border-top: 6px solid #eab308;
-            padding: 25px 40px;
-            border-radius: 6px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            text-align: center;
-            width: 440px;
-            z-index: 20;
-        }
-
-        .terminal-title {
-            font-size: 1.05rem;
-            color: #eab308;
-            margin-bottom: 15px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .code-container {
+        /* --- 內容區域 --- */
+        .content-area {
+            flex-grow: 1;
             display: flex;
-            gap: 12px;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stage-title {
+            font-size: 24px;
+            color: #ffb300;
             margin-bottom: 20px;
         }
 
-        .code-input {
-            width: 48px;
-            height: 48px;
-            background: #2e1f13;
-            border: 2px solid #78350f;
-            border-radius: 4px;
-            font-size: 26px;
-            color: #fde047;
-            text-align: center;
-            font-weight: bold;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .code-input:focus {
-            border-color: #eab308;
-            box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
-            background: #1c130c;
-        }
-
-        .submit-btn {
-            background: #b91c1c;
-            color: #ffffff;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            transition: background 0.2s;
-            width: 100%;
-            box-shadow: 0 4px 10px rgba(185, 28, 28, 0.4);
-        }
-
-        .submit-btn:hover {
-            background: #991b1b;
-            color: #fde047;
-        }
-
-        #result-log {
-            margin-top: 18px;
-            font-size: 0.95rem;
-            min-height: 24px;
+        .story-text {
+            font-size: 16px;
             line-height: 1.6;
-            letter-spacing: 0.5px;
+            color: #dddddd;
+            max-width: 90%;
         }
-        .text-success { color: #4ade80; text-shadow: 0 0 5px rgba(0,0,0,0.5); font-weight: bold; }
-        .text-error { color: #f87171; }
+
+        /* --- 跨平台大按鈕（適合滑鼠點擊與大拇指按壓） --- */
+        .game-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+            background: #ffb300;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s, transform 0.1s;
+        }
+        .game-btn:hover {
+            background: #ffa000;
+        }
+        .game-btn:active {
+            transform: scale(0.98); /* 點擊時的下壓反饋 */
+        }
     </style>
 </head>
 <body>
 
-    <div class="header-container">
-        <h1>裡應外合</h1>
-        <div class="story-text">
-            <strong>【大軍密令】</strong> 永曆十五年，國姓爺鄭成功率鐵人軍與數百戰船進攻臺灣。今夜，我軍戰船已銜枚疾進，密佈於鹿耳門外海。潛伏在荷蘭熱蘭遮城內的漢人內應，正冒死點燃敵軍防線哨塔，企圖以火光向我軍傳遞「起義總攻」之密碼。<br>
-            請前線指揮官嚴密計數四座哨塔閃爍的規律（天命之年號），並於帥帳宣洩密碼，克期開戰！
+<div class="app-wrapper">
+
+    <div id="game-container" class="scene-panel">
+        <div class="content-area">
+            <h2 id="stage-title" class="stage-title">第一關：西市場的異動</h2>
+            <p style="color: #888;">[ 這裡放置你的 AR 畫面或解謎互動區 ]</p>
         </div>
+        <button class="game-btn" onclick="completeStage(currentStage)">
+            完成本關任務
+        </button>
     </div>
 
-    <div class="stage">
-        <div class="grass-layer"></div>
-        <div class="night-layer"></div>
-        
-        <img src="燈塔（暗.png" class="tower" id="tower-0" alt="烽火台">
-        <img src="燈塔（暗.png" class="tower" id="tower-1" alt="烽火台">
-        <img src="燈塔（暗.png" class="tower" id="tower-2" alt="烽火台">
-        
-        <div class="wall-layer"></div>
-        
-        <img src="燈塔（暗.png" class="tower" id="tower-3" alt="前景烽火台">
-    </div>
-
-    <div class="terminal-box">
-        <div class="terminal-title">⚔️ 國姓爺中軍帥帳．大軍密令</div>
-        <div class="code-container">
-            <input type="text" class="code-input" id="c1" maxlength="1" oninput="nextField(this, 'c2')">
-            <input type="text" class="code-input" id="c2" maxlength="1" oninput="nextField(this, 'c3')">
-            <input type="text" class="code-input" id="c3" maxlength="1" oninput="nextField(this, 'c4')">
-            <input type="text" class="code-input" id="c4" maxlength="1" oninput="nextField(this, null)">
+    <div id="transition-container" class="scene-panel" style="display: none; background: #1e1e1e;">
+        <div class="content-area">
+            <h2 style="color: #00e676; margin-bottom: 20px;">時空重塑中...</h2>
+            <p id="transition-story" class="story-text">過場劇情載入中...</p>
         </div>
-        <button class="submit-btn" onclick="checkCode()">發動總攻．收復臺灣</button>
-        <div id="result-log"></div>
+        <button id="next-stage-btn" class="game-btn" style="background: #00e676;">
+            前往下一關卡
+        </button>
     </div>
 
-    <script>
-        const patterns = [1, 6, 6, 1]; 
-        const lightOnTime = 500;     
-        const lightOffTime = 420;    
-        const transitionTime = 1800; 
+    <div id="ending-container" class="scene-panel" style="display: none; background: #111;">
+        <div class="content-area">
+            <h1 style="color: #ff3d00; margin-bottom: 16px;">時空敕令 終局</h1>
+            <p class="story-text">恭喜通關！你已成功導正所有時空軌跡，拯救了歷史線。</p>
+        </div>
+        <button class="game-btn" onclick="restartGame()" style="background: #ffffff; color: #111;">
+            重新開始旅程
+        </button>
+    </div>
 
-        function nextField(current, nextInputId) {
-            if (current.value.length >= 1 && nextInputId) {
-                document.getElementById(nextInputId).focus();
-            }
-        }
+</div>
 
-        function startSignalLoop(towerIdx) {
-            const maxFlashes = patterns[towerIdx];
-            let currentFlashCount = 0;
-            const towerEl = document.getElementById(`tower-${towerIdx}`);
+<script>
+    // 關卡資料庫
+    const gameStages = {
+        1: { name: "第一關：西市場的異動", next: 2, story: "成功解開西市場的封印，時空裂縫的軌跡似乎引導你前往下一個地點..." },
+        2: { name: "第二關：明鄭敕令的線索", next: 3, story: "尋獲了塵封的關鍵敕令，歷史的真相即將在下一站揭曉..." },
+        3: { name: "第三關：大員港風雲", next: 4, story: "成功破解了外商的貿易密碼，下一個時空節點指向了山區..." },
+        4: { name: "第四關：噍吧哖的怒火", next: 5, story: "歷史的硝煙散去，抗日事件的記憶已化作你手中前進的力量..." },
+        5: { name: "第五關：玉井時空節點", next: 6, story: "時空儀器的指針開始劇烈晃動，核心謎底就在前方..." },
+        6: { name: "第六關：大明慈悲的召喚", next: 7, story: "最後的屏障已解除，準備迎來最終的時空審判！" },
+        7: { name: "第七關：時空敕令的終局", next: null, story: null }
+    };
 
-            function flash() {
-                if (currentFlashCount < maxFlashes) {
-                    towerEl.src = '燈塔（亮.png'; 
-                    
-                    setTimeout(() => {
-                        towerEl.src = '燈塔（暗.png'; 
-                        currentFlashCount++;
-                        setTimeout(flash, lightOffTime);
-                    }, lightOnTime);
-                } else {
-                    setTimeout(() => {
-                        const nextIdx = (towerIdx + 1) % 4;
-                        startSignalLoop(nextIdx);
-                    }, transitionTime);
-                }
-            }
+    let currentStage = 1;
 
-            flash();
-        }
-
-        function checkCode() {
-            const v1 = document.getElementById('c1').value;
-            const v2 = document.getElementById('c2').value;
-            const v3 = document.getElementById('c3').value;
-            const v4 = document.getElementById('c4').value;
+    function completeStage(stageId) {
+        if (stageId < 7) {
+            // 1~6關：顯示過場跳轉頁面
+            document.getElementById("game-container").style.display = "none";
+            document.getElementById("transition-container").style.display = "flex";
+            document.getElementById("transition-story").innerText = gameStages[stageId].story;
             
-            const combinedCode = v1 + v2 + v3 + v4;
-            const logEl = document.getElementById('result-log');
-
-            if (combinedCode === '1661') {
-                logEl.className = 'text-success';
-                // 💡 調整：文字僅留「暗號正確！」及以前文字
-                logEl.innerHTML = '🚩 【大軍聽令：開戰！】<br>暗號正確！';
-            } else {
-                logEl.className = 'text-error';
-                logEl.innerHTML = '⚠️ 【軍情有誤．按兵不動】<br>暗號不符！海面風浪大作，恐是紅毛番的誘敵詭計。請重新嚴密審視哨塔火光次數！';
-                
-                setTimeout(() => {
-                    document.getElementById('c1').value = '';
-                    document.getElementById('c2').value = '';
-                    document.getElementById('c3').value = '';
-                    document.getElementById('c4').value = '';
-                    document.getElementById('c1').focus();
-                    logEl.innerText = '';
-                }, 2500);
-            }
+            const nextBtn = document.getElementById("next-stage-btn");
+            nextBtn.onclick = function() {
+                startNextStage(gameStages[stageId].next);
+            };
+        } else {
+            // 第7關：直接進結局
+            document.getElementById("game-container").style.display = "none";
+            document.getElementById("ending-container").style.display = "flex";
         }
+    }
 
-        window.onload = function() {
-            startSignalLoop(0);
-        };
-    </script>
+    function startNextStage(nextStageId) {
+        currentStage = nextStageId;
+        document.getElementById("transition-container").style.display = "none";
+        document.getElementById("game-container").style.display = "flex";
+        document.getElementById("stage-title").innerText = gameStages[currentStage].name;
+    }
+
+    function restartGame() {
+        currentStage = 1;
+        document.getElementById("ending-container").style.display = "none";
+        document.getElementById("game-container").style.display = "flex";
+        document.getElementById("stage-title").innerText = gameStages[currentStage].name;
+    }
+</script>
 </body>
 </html>
