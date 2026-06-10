@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>永曆防線：鹿耳門夜觀烽火</title>
+    <title>裡應外合</title>
     <style>
         /* 全局大明軍隊深夜海戰風格 */
         body {
@@ -95,7 +95,7 @@
             display: block;
         }
 
-        /* 🎯 精準控制位置與比例 */
+        /* 精準控制位置與比例 */
         #tower-0 {
             /* 左側大藍窗燈塔 */
             left: 80px;
@@ -113,8 +113,7 @@
             z-index: 3;
         }
         #tower-2 {
-            /* 右上極遠處小型燈塔（右邊最遠的） */
-            /* 💡 調整：將 left 從 590px 往左移至 530px */
+            /* 右上極遠處小型燈塔 */
             left: 530px;
             bottom: 330px;
             width: 65px;
@@ -122,7 +121,7 @@
             z-index: 3;
         }
         #tower-3 {
-            /* 右下角特大前景燈塔（最近的） */
+            /* 右下角特大前景燈塔 */
             left: 625px;
             bottom: 20px; 
             width: 240px;
@@ -226,30 +225,26 @@
 <body>
 
     <div class="header-container">
-        <h1>永曆防線：鹿耳門夜觀烽火</h1>
+        <h1>裡應外合</h1>
         <div class="story-text">
             <strong>【大軍密令】</strong> 永曆十五年，國姓爺鄭成功率鐵人軍與數百戰船進攻臺灣。今夜，我軍戰船已銜枚疾進，密佈於鹿耳門外海。潛伏在荷蘭熱蘭遮城內的漢人內應，正冒死點燃敵軍防線哨塔，企圖以火光向我軍傳遞「起義總攻」之密碼。<br>
             請前線指揮官嚴密計數四座哨塔閃爍的規律（天命之年號），並於帥帳宣洩密碼，克期開戰！
         </div>
     </div>
 
-    <!-- 舞台區域 -->
     <div class="stage">
         <div class="grass-layer"></div>
         <div class="night-layer"></div>
         
         <img src="燈塔（暗.png" class="tower" id="tower-0" alt="烽火台">
         <img src="燈塔（暗.png" class="tower" id="tower-1" alt="烽火台">
-        <!-- 已向左微調的小型背景燈塔 -->
         <img src="燈塔（暗.png" class="tower" id="tower-2" alt="烽火台">
         
-        <!-- 城牆完美覆蓋在前方 -->
         <div class="wall-layer"></div>
         
         <img src="燈塔（暗.png" class="tower" id="tower-3" alt="前景烽火台">
     </div>
 
-    <!-- 操作解碼端 -->
     <div class="terminal-box">
         <div class="terminal-title">⚔️ 國姓爺中軍帥帳．大軍密令</div>
         <div class="code-container">
